@@ -66,6 +66,6 @@ epsilon = 1e-2
 
 data_dim = 6
 use_extra_features = False
-with_X_transformation = True
+with_X_transformation = False
 sorting_method = None
 
