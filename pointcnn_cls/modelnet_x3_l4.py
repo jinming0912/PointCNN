@@ -44,13 +44,15 @@ sample_num_variance = 1 // 8
 sample_num_clip = 1 // 4
 
 x = 3
+rate = 2
 
 xconv_param_name = ('K', 'D', 'P', 'C', 'links')
 xconv_params = [dict(zip(xconv_param_name, xconv_param)) for xconv_param in
-                [(8, 1, -1, 16 * x, []),
-                 (12, 2, 384, 32 * x, []),
-                 (16, 2, 128, 64 * x, []),
-                 (16, 3, 128, 128 * x, [])]]
+                [(8//rate, 1, -1, 16 * x, []),
+                 (12//rate, 2, 384, 32 * x, []),
+                 (16//rate, 2, 128, 64 * x, []),
+                 (16//rate, 3, 128, 128 * x, [])]]
+
 
 with_global = True
 
@@ -66,6 +68,6 @@ epsilon = 1e-2
 
 data_dim = 6
 use_extra_features = False
-with_X_transformation = False
+with_X_transformation = True
 sorting_method = None
 
