@@ -19,7 +19,7 @@ sample_num = 1024
 
 batch_size = 128
 
-num_epochs = 1024
+num_epochs = 102400
 
 step_val = 500
 
@@ -68,3 +68,4 @@ data_dim = 6
 use_extra_features = False
 with_X_transformation = True
 sorting_method = None
+
