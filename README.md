@@ -1,9 +1,9 @@
-setting: K= 1/2 (without x_transform)
+setting: K= 1/4 (with x_transform)
 
 layers:
 
 x = 3
-rate = 2
+rate = 4
 
 xconv_params = [dict(zip(xconv_param_name, xconv_param)) for xconv_param in
 
@@ -16,4 +16,4 @@ xconv_params = [dict(zip(xconv_param_name, xconv_param)) for xconv_param in
                  (16//rate, 3, 128, 128 * x, [])]]
 
 
-performance: 89.63%
+performance: 85.70%

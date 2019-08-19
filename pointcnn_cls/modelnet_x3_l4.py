@@ -44,7 +44,7 @@ sample_num_variance = 1 // 8
 sample_num_clip = 1 // 4
 
 x = 3
-rate = 2
+rate = 4
 
 xconv_param_name = ('K', 'D', 'P', 'C', 'links')
 xconv_params = [dict(zip(xconv_param_name, xconv_param)) for xconv_param in
@@ -68,6 +68,6 @@ epsilon = 1e-2
 
 data_dim = 6
 use_extra_features = False
-with_X_transformation = False
+with_X_transformation = True
 sorting_method = None
 
