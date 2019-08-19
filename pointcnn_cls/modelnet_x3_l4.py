@@ -47,11 +47,17 @@ x = 3
 rate = 4
 
 xconv_param_name = ('K', 'D', 'P', 'C', 'links')
+# xconv_params = [dict(zip(xconv_param_name, xconv_param)) for xconv_param in
+#                 [(8//rate, 1, -1, 16 * x, []),
+#                  (12//rate, 2, 384, 32 * x, []),
+#                  (16//rate, 2, 128, 64 * x, []),
+#                  (16//rate, 3, 128, 128 * x, [])]]
+
 xconv_params = [dict(zip(xconv_param_name, xconv_param)) for xconv_param in
-                [(8//rate, 1, -1, 16 * x, []),
-                 (12//rate, 2, 384, 32 * x, []),
-                 (16//rate, 2, 128, 64 * x, []),
-                 (16//rate, 3, 128, 128 * x, [])]]
+                [(2, 1, -1, 16 * x, []),
+                 (2, 2, 384, 32 * x, []),
+                 (2, 2, 128, 64 * x, []),
+                 (2, 3, 128, 128 * x, [])]]
 
 
 with_global = True
