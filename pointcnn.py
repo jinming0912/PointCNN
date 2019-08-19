@@ -7,7 +7,7 @@ import pointfly as pf
 import tensorflow as tf
 
 
-def xconv(pts, fts, qrs, tag, N, K, D, P, C, C_pts_fts, is_training, with_X_transformation, depth_multiplier,
+def xconv(pts, fts, qrs, tag, N, K, D, P, C, C_prev, C_pts_fts, is_training, with_X_transformation, depth_multiplier,
           sorting_method=None, with_global=False):
     _, indices_dilated = pf.knn_indices_general(qrs, pts, K * D, True)
     indices = indices_dilated[:, :, ::D, :]
@@ -24,19 +24,31 @@ def xconv(pts, fts, qrs, tag, N, K, D, P, C, C_pts_fts, is_training, with_X_tran
     nn_fts_from_pts = pf.dense(nn_fts_from_pts_0, C_pts_fts, tag + 'nn_fts_from_pts', is_training)
     if fts is None:
         nn_fts_input = nn_fts_from_pts
+        nn_fts = nn_fts_input
+        Chnnel_fts_input = C_pts_fts
+
     else:
         nn_fts_from_prev = tf.gather_nd(fts, indices, name=tag + 'nn_fts_from_prev')
+        nn_fts = tf.gather_nd(fts, indices, name=tag + 'nn_fts')  # (N, P, K, C)
         nn_fts_input = tf.concat([nn_fts_from_pts, nn_fts_from_prev], axis=-1, name=tag + 'nn_fts_input')
+        Chnnel_fts_input = C_pts_fts + C_prev
+
+    print('nn_fts', nn_fts.get_shape())
+    print('nn_fts_input', nn_fts_input.get_shape())
+    print('Chnnel_fts_input = ', Chnnel_fts_input)
+
+    nn_pts_use = tf.concat([nn_pts_local, nn_fts], axis=3, name=tag + 'nn_pts_use')  # (N, P, K, C+3)
 
     if with_X_transformation:
         ######################## X-transformation #########################
-        X_0 = pf.conv2d(nn_pts_local, K * K, tag + 'X_0', is_training, (1, K))
-        X_0_KK = tf.reshape(X_0, (N, P, K, K), name=tag + 'X_0_KK')
-        X_1 = pf.depthwise_conv2d(X_0_KK, K, tag + 'X_1', is_training, (1, K))
-        X_1_KK = tf.reshape(X_1, (N, P, K, K), name=tag + 'X_1_KK')
-        X_2 = pf.depthwise_conv2d(X_1_KK, K, tag + 'X_2', is_training, (1, K), activation=None)
-        X_2_KK = tf.reshape(X_2, (N, P, K, K), name=tag + 'X_2_KK')
-        fts_X = tf.matmul(X_2_KK, nn_fts_input, name=tag + 'fts_X')
+        X_0 = pf.conv2d(nn_pts_use, K * Chnnel_fts_input, tag + 'X_0', is_training, (1, K))
+        X_0_KK = tf.reshape(X_0, (N, P, K, Chnnel_fts_input), name=tag + 'X_0_KK')
+        X_1 = pf.conv2d(X_0_KK, K * Chnnel_fts_input, tag + 'X_1', is_training, (1, K))
+        X_1_KK = tf.reshape(X_1, (N, P, K, Chnnel_fts_input), name=tag + 'X_1_KK')
+        X_2 = pf.conv2d(X_1_KK, K * Chnnel_fts_input, tag + 'X_2', is_training, (1, K), activation=None)
+        X_2_KK = tf.reshape(X_2, (N, P, K, Chnnel_fts_input), name=tag + 'X_2_KK')
+        fts_X = tf.multiply(X_2_KK, nn_fts_input, name=tag + 'fts_X')
+        print('fts_X', fts_X.get_shape())
         ###################################################################
     else:
         fts_X = nn_fts_input
@@ -107,12 +119,17 @@ class PointCNN:
             if layer_idx == 0:
                 C_pts_fts = C // 2 if fts is None else C // 4
                 depth_multiplier = 4
+                C_prev = C_pts_fts
             else:
                 C_prev = xconv_params[layer_idx - 1]['C']
                 C_pts_fts = C_prev // 4
                 depth_multiplier = math.ceil(C / C_prev)
             with_global = (setting.with_global and layer_idx == len(xconv_params) - 1)
-            fts_xconv = xconv(pts, fts, qrs, tag, N, K, D, P, C, C_pts_fts, is_training, with_X_transformation,
+
+            if layer_idx>3:
+                with_X_transformation = False
+
+            fts_xconv = xconv(pts, fts, qrs, tag, N, K, D, P, C, C_prev, C_pts_fts, is_training, with_X_transformation,
                               depth_multiplier, sorting_method, with_global)
             fts_list = []
             for link in links:
@@ -157,3 +174,4 @@ class PointCNN:
             fc = pf.dense(self.fc_layers[-1], C, 'fc{:d}'.format(layer_idx), is_training)
             fc_drop = tf.layers.dropout(fc, dropout_rate, training=is_training, name='fc{:d}_drop'.format(layer_idx))
             self.fc_layers.append(fc_drop)
+
