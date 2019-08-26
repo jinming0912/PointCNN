@@ -147,7 +147,7 @@ class PointCNN:
 
             use_channel_wise = True
 
-            if layer_idx>1:
+            if layer_idx>3:
                 use_channel_wise = False
 
 
