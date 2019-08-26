@@ -44,17 +44,23 @@ def xconv(pts, fts, qrs, tag, N, K, D, P, C, C_prev, C_pts_fts, is_training, wit
     if with_X_transformation:
 
         if use_channel_wise:
+            rate = 6
+
             ######################## channel-wise X-transformation #########################
-            X_0 = pf.conv2d(nn_pts_use, K * Chnnel_fts_input, tag + 'X_0', is_training, (1, K))
-            X_0_KK = tf.reshape(X_0, (N, P, K, Chnnel_fts_input), name=tag + 'X_0_KK')
-            X_1 = pf.conv2d(X_0_KK, K * Chnnel_fts_input, tag + 'X_1', is_training, (1, K))
-            X_1_KK = tf.reshape(X_1, (N, P, K, Chnnel_fts_input), name=tag + 'X_1_KK')
-            X_2 = pf.conv2d(X_1_KK, K * Chnnel_fts_input, tag + 'X_2', is_training, (1, K), activation=None)
-            X_2_KK = tf.reshape(X_2, (N, P, K, Chnnel_fts_input), name=tag + 'X_2_KK')
+            X_0 = pf.conv2d(nn_pts_use, K * Chnnel_fts_input // rate, tag + 'X_0', is_training, (1, K))
+            X_0_KK = tf.reshape(X_0, (N, P, K, Chnnel_fts_input // rate), name=tag + 'X_0_KK')
+            X_1 = pf.conv2d(X_0_KK, K * Chnnel_fts_input // rate, tag + 'X_1', is_training, (1, K))
+            X_1_KK = tf.reshape(X_1, (N, P, K, Chnnel_fts_input // rate), name=tag + 'X_1_KK')
+            X_2 = pf.conv2d(X_1_KK, K * Chnnel_fts_input // rate, tag + 'X_2', is_training, (1, K), activation=None)
+            X_2_KK = tf.reshape(X_2, (N, P, K, Chnnel_fts_input // rate), name=tag + 'X_2_KK')
+            print('X_2_KK', X_2_KK.get_shape())
+            X_2_KK = tf.tile(X_2_KK, multiples=[1, 1, 1, rate])
+            print('X_2_KK', X_2_KK.get_shape())
             fts_X = tf.multiply(X_2_KK, nn_fts_input, name=tag + 'fts_X')
             print('use channel wise')
             print('fts_X', fts_X.get_shape())
             ###################################################################
+
 
         else:
             ######################## original X-transformation #########################
@@ -147,7 +153,7 @@ class PointCNN:
 
             use_channel_wise = True
 
-            if layer_idx>3:
+            if layer_idx>15:
                 use_channel_wise = False
 
 
