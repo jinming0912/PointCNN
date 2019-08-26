@@ -1,4 +1,4 @@
-setting: K= 2  12layers (with x_transform + channel-wise)
+setting: aligned K= 2  12layers (without x_transform)
 
 layers:
 
@@ -31,4 +31,4 @@ xconv_params = [dict(zip(xconv_param_name, xconv_param)) for xconv_param in
                  (2, 3, 128, 512 * x, [])]]#11
                 
 
-performance: 81.48%
+performance: 85.74%

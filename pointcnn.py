@@ -43,7 +43,7 @@ def xconv(pts, fts, qrs, tag, N, K, D, P, C, C_prev, C_pts_fts, is_training, wit
         ######################## X-transformation #########################
         X_0 = pf.conv2d(nn_pts_use, K * Chnnel_fts_input, tag + 'X_0', is_training, (1, K))
         X_0_KK = tf.reshape(X_0, (N, P, K, Chnnel_fts_input), name=tag + 'X_0_KK')
-        X_1 = pf.conv2d(X_0_KK, K * Chnnel_fts_input, tag + 'X_1', is_training, (1, K))
+        X_1 = pf.conv2d(X_0_KK, K * Chnnel_fts_input, tag + 'X_1', is_training, (1, K)) 
         X_1_KK = tf.reshape(X_1, (N, P, K, Chnnel_fts_input), name=tag + 'X_1_KK')
         X_2 = pf.conv2d(X_1_KK, K * Chnnel_fts_input, tag + 'X_2', is_training, (1, K), activation=None)
         X_2_KK = tf.reshape(X_2, (N, P, K, Chnnel_fts_input), name=tag + 'X_2_KK')
@@ -92,7 +92,7 @@ class PointCNN:
             C = layer_param['C']
             links = layer_param['links']
             if setting.sampling != 'random' and links:
-                print('Error: flexible links are supported only when random sampling is used!')
+                print('Error: flexible links are supported only when random sampling is used!') 
                 exit()
 
             # get k-nearest points
@@ -104,7 +104,7 @@ class PointCNN:
                 if setting.sampling == 'fps':
                     fps_indices = tf_sampling.farthest_point_sample(P, pts)
                     batch_indices = tf.tile(tf.reshape(tf.range(N), (-1, 1, 1)), (1, P, 1))
-                    indices = tf.concat([batch_indices, tf.expand_dims(fps_indices,-1)], axis=-1)
+                    indices = tf.concat([batch_indices, tf.expand_dims(fps_indices,-1)], axis=-1)   
                     qrs = tf.gather_nd(pts, indices, name= tag + 'qrs') # (N, P, 3)
                 elif setting.sampling == 'ids':
                     indices = pf.inverse_density_sampling(pts, K, P)
@@ -174,4 +174,5 @@ class PointCNN:
             fc = pf.dense(self.fc_layers[-1], C, 'fc{:d}'.format(layer_idx), is_training)
             fc_drop = tf.layers.dropout(fc, dropout_rate, training=is_training, name='fc{:d}_drop'.format(layer_idx))
             self.fc_layers.append(fc_drop)
+                                                                                                                                                  
 

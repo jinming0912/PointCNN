@@ -19,7 +19,7 @@ sample_num = 1024
 
 batch_size = 128
 
-num_epochs = 1024
+num_epochs = 102400
 
 step_val = 500
 
@@ -46,11 +46,25 @@ sample_num_clip = 1 // 4
 x = 3
 
 xconv_param_name = ('K', 'D', 'P', 'C', 'links')
+#xconv_params = [dict(zip(xconv_param_name, xconv_param)) for xconv_param in
+#                [(8, 1, -1, 16 * x, []),
+#                 (12, 2, 384, 32 * x, []),
+#                 (16, 2, 128, 64 * x, []),
+#                 (16, 3, 128, 128 * x, [])]]
 xconv_params = [dict(zip(xconv_param_name, xconv_param)) for xconv_param in
-                [(8, 1, -1, 16 * x, []),
-                 (12, 2, 384, 32 * x, []),
-                 (16, 2, 128, 64 * x, []),
-                 (16, 3, 128, 128 * x, [])]]
+                [(2, 1, -1, 16 * x, []),#0
+                 (2, 2, 1024, 16 * x, []),#1
+                 (2, 2, 768, 32 * x, []),#2
+                 (2, 2, 768, 32 * x, []),#3
+                 (2, 2, 512, 64 * x, []),#4
+                 (2, 2, 512, 64 * x, []),#5
+                 (2, 3, 384, 128 * x, []),#6
+                 (2, 3, 384, 128 * x, []),#7
+                 (2, 3, 256, 256 * x, []),#8
+                 (2, 3, 256, 256 * x, []),#9
+                 (2, 3, 128, 512 * x, []),#10
+                 (2, 3, 128, 512 * x, [])]]#11
+
 
 with_global = True
 
@@ -66,5 +80,5 @@ epsilon = 1e-2
 
 data_dim = 6
 use_extra_features = False
-with_X_transformation = True
+with_X_transformation = False
 sorting_method = None
